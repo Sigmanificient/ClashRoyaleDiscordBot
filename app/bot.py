@@ -40,9 +40,9 @@ class Bot(Client):
 
         super().__init__(token=config.get('token'))
 
-        # for filename in os.listdir("app/cogs"):
-        #     if filename.endswith('.py'):
-        #         self.load_extension(f'app.cogs.{filename[:-3]}')
+        for filename in os.listdir("app/cogs"):
+            if filename.endswith('.py'):
+                self.load_cog(f'app.cogs.{filename[:-3]}')
 
     @Client.event
     async def on_ready(self):

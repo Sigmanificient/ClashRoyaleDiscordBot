@@ -15,7 +15,7 @@ class Bot(Client):
         load_config()
 
         config = json.load(open('private/config.json'))
-        self.clashRoyaleAPI = ClashRoyaleAPI(config.get('CR_token'))
+        self.clash_royale_api = ClashRoyaleAPI(config.get('CR_token'))
 
         self.embed_color = int(config.get('embed_color', 0x2f3037), 16)
 
@@ -49,7 +49,6 @@ def load_config():
         json.dump(
             {
                 'token': None,
-                'prefix': ';',
                 'embed_color': '0x2f3037'
             },
             config_file,

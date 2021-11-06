@@ -2,11 +2,13 @@
 
 import json
 import os
-from discord.ext import commands
+
+from pincer import Client
+
 from app.utils import ClashRoyaleAPI
 
 
-class Bot(commands.Bot):
+class Bot(Client):
     def __init__(self):
         """Initialize the bot"""
         os.makedirs('private', exist_ok=True)
@@ -25,32 +27,24 @@ class Bot(commands.Bot):
                 config_file.close()
 
         config = json.load(open('private/config.json'))
-
-        self._token = config.get('token')
-        self.prefix = config.get('prefix', ';')
         self.clashRoyaleAPI = ClashRoyaleAPI(config.get('CR_token'))
-        self.embed_color = int(config.get('embed_color', 0x2f3037), 16)
-        super().__init__(self.prefix)
-        self.remove_command("help")
-        for filename in os.listdir("app/cogs"):
-            if filename.endswith('.py'):
-                self.load_extension(f'app.cogs.{filename[:-3]}')
 
-    def run(self):
-        """Run the bot"""
+        self.embed_color = int(config.get('embed_color', 0x2f3037), 16)
+
         with open('private/config.json') as config_file:
             config = json.load(config_file)
             config_file.close()
         if config.get('token') is None:
             print('[ERROR] No token found in the private/config.json file')
             return
-        super().run(config.get('token'))
 
-    async def on_message(self, message):
-        """If the bot receive a message"""
-        print(f'> {message.author.name} : {message.clean_content}')
-        await self.process_commands(message)
+        super().__init__(token=config.get('token'))
 
+        # for filename in os.listdir("app/cogs"):
+        #     if filename.endswith('.py'):
+        #         self.load_extension(f'app.cogs.{filename[:-3]}')
+
+    @Client.event
     async def on_ready(self):
         """When the bot is ready"""
-        print(f'Connected as {self.user}!')
+        print(f'Connected as {self.bot}!')

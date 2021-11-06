@@ -1,5 +1,3 @@
-discord~=1.7.3
-embed_templator~=1.0.4
 requests~=2.26.0
 Pillow~=8.4.0
 pincer~=0.10.0

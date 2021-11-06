@@ -42,15 +42,17 @@ class Bot(Client):
 def load_config():
     os.makedirs('private', exist_ok=True)
     os.makedirs('app/data', exist_ok=True)
-    if 'config.json' not in os.listdir('private'):
-        with open('private/config.json', 'w') as config_file:
-            json.dump(
-                {
-                    'token': None,
-                    'prefix': ';',
-                    'embed_color': '0x2f3037'
-                },
-                config_file,
-                indent=4
-            )
-            config_file.close()
+    if 'config.json' in os.listdir('private'):
+        return
+
+    with open('private/config.json', 'w') as config_file:
+        json.dump(
+            {
+                'token': None,
+                'prefix': ';',
+                'embed_color': '0x2f3037'
+            },
+            config_file,
+            indent=4
+        )
+        config_file.close()

@@ -1,35 +1,31 @@
-import discord
-from discord.ext import commands
-from app.utils import Embed, UserNotFound
 import io
 import urllib.request
+
 from PIL import Image, ImageFont, ImageDraw, PngImagePlugin
+from pincer import command
+from pincer.objects import Message, Embed
+
+from app.utils import UserNotFound
 
 
-class Player(commands.Cog):
+class Player:
     def __init__(self, client):
         """Initialize the different commands."""
         self.client = client
-        Embed.load(self.client, color=0x2f3037)
 
-    @commands.command(
+    @command(
         name='profile',
         description='used to see your or someone else\'s profile'
     )
-    @commands.guild_only()
-    async def profile(self, ctx):
-        if len(ctx.message.content.split(' ')) == 1:
-            await ctx.send('You need to specify an user: `CR;profile 82LVCQGR`')
-            return
-
+    async def profile_command(self, player_id: str):
         try:
-            result = self.client.clashRoyaleAPI.get_player(
-                ctx.message.content.split(' ')[1])
+            result = self.client.clashRoyaleAPI.get_player(player_id)
             chests = self.client.clashRoyaleAPI.get_player_upcoming_chests(
-                ctx.message.content.split(' ')[1])
+                player_id
+            )
+
         except UserNotFound:
-            await ctx.send('This user does not exist')
-            return
+            return 'This user does not exist'
 
         # deck into an image start form here
         PngImagePlugin.MAX_TEXT_CHUNK = 100 * (1024 ** 2)
@@ -70,67 +66,59 @@ class Player(commands.Cog):
 
         d1 = ImageDraw.Draw(deck)
         d1.text((120, 28), 'Current deck', fill=(255, 255, 255), font=cr_font)
-
-        image_binary = io.BytesIO()
-        deck.save(image_binary, "PNG")
-        image_binary.seek(0)
-        deck = discord.File(fp=image_binary, filename="image.png")
-
-        await ctx.send(
-            embed=Embed(ctx)(
-                title=f'Profile of {result.get("name")}',
-                description=(
-                    f'**level:** {result.get("expLevel")} (xp points: {result.get("expPoints")})\n'
-                    f'**trophies:** {result.get("trophies")} (best: {result.get("bestTrophies")})\n'
-                    f'**arena:** {result.get("arena").get("name")}\n'
-                    f'**star points:** {result.get("starPoints")}\n'
-                    f'**total donations:** {result.get("totalDonations")}\n'
-                    f'**total donations collected:** {result.get("clanCardsCollected")}\n'
-                ),
-            )
-            .add_field(
-                name='Games stats',
-                value=(
-                    f'**W/R:** {(result.get("wins") / result.get("battleCount")):.2f}\n'
-                    f'**wins:** {result.get("wins")}\n'
-                    f'**losses:** {result.get("losses")}\n'
-                    f'**total battle count:** {result.get("battleCount")}\n'
-                    f'**tree crown wins:** {result.get("threeCrownWins")}\n'
-                ),
-                inline=True,
-            )
-            .add_field(
-                name='Clan stats',
-                value=(
-                    (
-                        f'**name:** {result.get("clan").get("name")}\n'
-                        f'**tag:** {result.get("clan").get("tag")}\n'
-                        f'**role:** {result.get("role")}\n'
-                        f'**donations:** {result.get("donations")}\n'
-                        f'**donations received:** {result.get("donationsReceived")}\n'
+        return Message(
+            embeds=[
+                Embed(
+                    title=f'Profile of {result.get("name")}',
+                    description=(
+                        f'**level:** {result.get("expLevel")} (xp points: {result.get("expPoints")})\n'
+                        f'**trophies:** {result.get("trophies")} (best: {result.get("bestTrophies")})\n'
+                        f'**arena:** {result.get("arena").get("name")}\n'
+                        f'**star points:** {result.get("starPoints")}\n'
+                        f'**total donations:** {result.get("totalDonations")}\n'
+                        f'**total donations collected:** {result.get("clanCardsCollected")}\n'
+                    ),
+                ).add_field(
+                    name='Games stats',
+                    value=(
+                        f'**W/R:** {(result.get("wins") / (result.get("battleCount") + 1)):.2f}\n'
+                        f'**wins:** {result.get("wins")}\n'
+                        f'**losses:** {result.get("losses")}\n'
+                        f'**total battle count:** {result.get("battleCount")}\n'
+                        f'**tree crown wins:** {result.get("threeCrownWins")}\n'
                     )
-                    if result.get('clan') is not None
-                    else 'not in a clan'
-                ),
-                inline=True,
-            )
-            .add_field(
-                name='Upcoming chests',
-                value='\n'.join(
-                    (
-                            ("+" + str(chest.get("index"))
-                             if chest.get("index") != 0
-                             else "next")
-                            + f' : {chest.get("name")}'
-                    )
-                    for chest in chests.get('items')
-                ),
-                inline=False,
-            )
-            .set_image(url="attachment://image.png"),
-            file=deck
+                ).add_field(
+                    name='Clan stats',
+                    value=(
+                        (
+                            f'**name:** {result.get("clan").get("name")}\n'
+                            f'**tag:** {result.get("clan").get("tag")}\n'
+                            f'**role:** {result.get("role")}\n'
+                            f'**donations:** {result.get("donations")}\n'
+                            f'**donations received:** {result.get("donationsReceived")}\n'
+                        )
+                        if result.get('clan') is not None
+                        else 'not in a clan'
+                    ),
+                    inline=True,
+                ).add_field(
+                    name='Upcoming chests',
+                    value='\n'.join(
+                        (
+                                ("+" + str(chest.get("index"))
+                                 if chest.get("index") != 0
+                                 else "next")
+                                + f' : {chest.get("name")}'
+                        )
+                        for chest in chests.get('items')
+                    ),
+                    inline=False,
+                ).set_image(url="attachment://image0.png")
+            ],
+            attachments=[
+                deck
+            ]
         )
 
 
-def setup(client):
-    client.add_cog(Player(client))
+setup = Player

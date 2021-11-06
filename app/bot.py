@@ -9,22 +9,10 @@ from app.utils import ClashRoyaleAPI
 
 
 class Bot(Client):
+
     def __init__(self):
         """Initialize the bot"""
-        os.makedirs('private', exist_ok=True)
-        os.makedirs('app/data', exist_ok=True)
-        if 'config.json' not in os.listdir('private'):
-            with open('private/config.json', 'w') as config_file:
-                json.dump(
-                    {
-                        'token': None,
-                        'prefix': ';',
-                        'embed_color': '0x2f3037'
-                    },
-                    config_file,
-                    indent=4
-                )
-                config_file.close()
+        load_config()
 
         config = json.load(open('private/config.json'))
         self.clashRoyaleAPI = ClashRoyaleAPI(config.get('CR_token'))
@@ -34,6 +22,7 @@ class Bot(Client):
         with open('private/config.json') as config_file:
             config = json.load(config_file)
             config_file.close()
+
         if config.get('token') is None:
             print('[ERROR] No token found in the private/config.json file')
             return
@@ -48,3 +37,20 @@ class Bot(Client):
     async def on_ready(self):
         """When the bot is ready"""
         print(f'Connected as {self.bot}!')
+
+
+def load_config():
+    os.makedirs('private', exist_ok=True)
+    os.makedirs('app/data', exist_ok=True)
+    if 'config.json' not in os.listdir('private'):
+        with open('private/config.json', 'w') as config_file:
+            json.dump(
+                {
+                    'token': None,
+                    'prefix': ';',
+                    'embed_color': '0x2f3037'
+                },
+                config_file,
+                indent=4
+            )
+            config_file.close()

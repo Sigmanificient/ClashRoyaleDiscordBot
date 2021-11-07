@@ -67,55 +67,58 @@ class Player:
         d1 = ImageDraw.Draw(deck)
         d1.text((120, 28), 'Current deck', fill=(255, 255, 255), font=cr_font)
 
-        info_embed = Embed(
-            title=f'Profile of {result.get("name")}',
-            description=(
-                f'**level:** {result.get("expLevel")} (xp points: {result.get("expPoints")})\n'
-                f'**trophies:** {result.get("trophies")} (best: {result.get("bestTrophies")})\n'
-                f'**arena:** {result.get("arena").get("name")}\n'
-                f'**star points:** {result.get("starPoints")}\n'
-                f'**total donations:** {result.get("totalDonations")}\n'
-                f'**total donations collected:** {result.get("clanCardsCollected")}\n'
-            ),
-            color=self.client.embed_color
-        ).add_field(
-            name='Games stats',
-            value=(
-                f'**W/R:** {(result.get("wins") / (result.get("battleCount") + 1)):.2f}\n'
-                f'**wins:** {result.get("wins")}\n'
-                f'**losses:** {result.get("losses")}\n'
-                f'**total battle count:** {result.get("battleCount")}\n'
-                f'**tree crown wins:** {result.get("threeCrownWins")}\n'
-            )
-        ).add_field(
-            name='Clan stats',
-            value=(
-                (
-                    f'**name:** {result.get("clan").get("name")}\n'
-                    f'**tag:** {result.get("clan").get("tag")}\n'
-                    f'**role:** {result.get("role")}\n'
-                    f'**donations:** {result.get("donations")}\n'
-                    f'**donations received:** {result.get("donationsReceived")}\n'
-                )
-                if result.get('clan') is not None
-                else 'not in a clan'
-            ),
-            inline=True,
-        ).add_field(
-            name='Upcoming chests',
-            value='\n'.join(
-                (
-                        ("+" + str(chest.get("index"))
-                         if chest.get("index") != 0
-                         else "next")
-                        + f' : {chest.get("name")}'
-                )
-                for chest in chests.get('items')
-            ),
-            inline=False,
-        ).set_image(url="attachment://image0.png")
-
-        return Message(embeds=[info_embed], attachments=[deck])
+        return Message(
+            embeds=[
+                Embed(
+                    title=f'Profile of {result.get("name")}',
+                    description=(
+                        f'**level:** {result.get("expLevel")} (xp points: {result.get("expPoints")})\n'
+                        f'**trophies:** {result.get("trophies")} (best: {result.get("bestTrophies")})\n'
+                        f'**arena:** {result.get("arena").get("name")}\n'
+                        f'**star points:** {result.get("starPoints")}\n'
+                        f'**total donations:** {result.get("totalDonations")}\n'
+                        f'**total donations collected:** {result.get("clanCardsCollected")}\n'
+                    ),
+                    color=self.client.embed_color
+                ).add_field(
+                    name='Games stats',
+                    value=(
+                        f'**W/R:** {(result.get("wins") / (result.get("battleCount") + 1)):.2f}\n'
+                        f'**wins:** {result.get("wins")}\n'
+                        f'**losses:** {result.get("losses")}\n'
+                        f'**total battle count:** {result.get("battleCount")}\n'
+                        f'**tree crown wins:** {result.get("threeCrownWins")}\n'
+                    )
+                ).add_field(
+                    name='Clan stats',
+                    value=(
+                        (
+                            f'**name:** {result.get("clan").get("name")}\n'
+                            f'**tag:** {result.get("clan").get("tag")}\n'
+                            f'**role:** {result.get("role")}\n'
+                            f'**donations:** {result.get("donations")}\n'
+                            f'**donations received:** {result.get("donationsReceived")}\n'
+                        )
+                        if result.get('clan') is not None
+                        else 'not in a clan'
+                    ),
+                    inline=True,
+                ).add_field(
+                    name='Upcoming chests',
+                    value='\n'.join(
+                        (
+                                ("+" + str(chest.get("index"))
+                                 if chest.get("index") != 0
+                                 else "next")
+                                + f' : {chest.get("name")}'
+                        )
+                        for chest in chests.get('items')
+                    ),
+                    inline=False,
+                ).set_image(url="attachment://image0.png")
+            ],
+            attachments=[deck]
+        )
 
 
 setup = Player

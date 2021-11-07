@@ -3,7 +3,7 @@ import urllib.request
 
 from PIL import Image, ImageFont, ImageDraw, PngImagePlugin
 from pincer import command
-from pincer.objects import Message, Embed
+from pincer.objects import Message, Embed, MessageContext
 
 from app.utils import UserNotFound
 
@@ -17,7 +17,8 @@ class Player:
         name='profile',
         description='used to see your or someone else\'s profile'
     )
-    async def profile_command(self, player_id: str):
+    async def profile_command(self, ctx: MessageContext, player_id: str):
+        await ctx.interaction.ack()
         try:
             result = self.client.clash_royale_api.get_player(player_id)
             chests = self.client.clash_royale_api.get_player_upcoming_chests(

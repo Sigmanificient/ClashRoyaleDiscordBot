@@ -2,6 +2,7 @@
 
 import json
 import os
+from glob import glob
 
 from pincer import Client
 
@@ -27,11 +28,14 @@ class Bot(Client):
             print('[ERROR] No token found in the private/config.json file')
             return
 
+        self.load_cogs()
         super().__init__(token=config.get('token'))
 
-        for filename in os.listdir("app/cogs"):
-            if filename.endswith('.py'):
-                self.load_cog(f'app.cogs.{filename[:-3]}')
+    def load_cogs(self):
+        """Load all cogs from the `cogs` directory."""
+        for cog in glob("app/cogs/*.py"):
+            self.load_cog(cog.replace("/", ".").replace("\\", ".")[:-3])
+            print("Loaded cogs from", cog)
 
     @Client.event
     async def on_ready(self):

@@ -12,7 +12,7 @@ class ClashRoyaleAPI:
     def __init__(self, token):
         self.__headers = {
             'Accept': 'application/json',
-            'Authorization': 'Bearer ' + token
+            'Authorization': f'Bearer {token}',
         }
 
     def __request(
@@ -32,10 +32,11 @@ class ClashRoyaleAPI:
         """
 
         r = requests.get(
-            'https://api.clashroyale.com/v1' + url,
+            f'https://api.clashroyale.com/v1{url}',
             headers=self.__headers,
-            params=params
+            params=params,
         )
+
         content = json.loads(r.content.decode('utf-8'))
 
         if not r.ok:
